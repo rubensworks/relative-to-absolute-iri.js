@@ -33,6 +33,7 @@
     "@types/jest": "^23.3.0",
     "coveralls": "^3.0.0",
     "jest": "^23.4.1",
+    "manual-git-changelog": "^1.0.0",
     "pre-commit": "^1.2.2",
     "ts-jest": "^23.0.1",
     "tslint": "^5.8.0",
@@ -61,6 +62,7 @@
     "lint": "tslint index.ts lib/**/*.ts test/**/*.ts --exclude '**/*.d.ts'",
     "build": "tsc",
     "validate": "npm ls",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "version": "manual-git-changelog onversion"
   }
 }
