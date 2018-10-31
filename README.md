@@ -28,7 +28,67 @@ const resolve = require("relative-to-absolute-iri").resolve;
 
 ## Usage
 
-TODO
+### Parameters
+
+This library exposes a single `resolve` function
+that must be called with a relative IRI (string) as first argument,
+and an optional base IRI (string) as second argument.
+It will output an absolute IRI (string).
+
+```javascript
+resolve('relative', 'http://base.org/'); // Outputs 'http://base.org/relative'
+```
+
+### Relative IRIs
+
+IRIs that are already relative will remain relative:
+
+```javascript
+resolve('http://example.org/'); // Outputs 'http://example.org/'
+resolve('http://example.org/', 'http://base.org/'); // Outputs 'http://example.org/'
+```
+
+### Hashes
+
+Fragments/hashes in relative IRIs are also taken into account.
+
+```javascript
+resolve('#abc', 'http://base.org/'); // Outputs 'http://base.org/#abc'
+```
+
+### Invalid base IRI
+
+Invalid base IRIs cause an error to be thrown.
+
+```javascript
+resolve('abc', 'def'); // Error
+```
+
+### Relative to scheme
+
+When a relative IRI starts with a `//`, then the scheme of the base IRI will be used.
+
+```javascript
+resolve('//abc', 'http://base.org/'); // Outputs 'http://abc'
+```
+
+### Absolute relative IRIs
+
+Relative IRIs that starts with a `/` erase the path of the base IRI.
+
+```javascript
+resolve('/abc/def/', 'http://base.org/123/456/'); // Outputs 'http://base.org/abc/def/'
+```
+
+### Collapsing of dots
+
+Relative IRIs that point to the current directory (`.`)
+or parent directory (`..`) are collapsed.
+
+```javascript
+resolve('xyz', 'http://aa/parent/parent/../../a'); // Outputs 'http://aa/xyz'
+resolve('xyz', 'http://aa/././a'); // Outputs 'http://aa/xyz'
+```
 
 ## License
 This software is written by [Ruben Taelman](http://rubensworks.net/).
