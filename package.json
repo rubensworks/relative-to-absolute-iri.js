@@ -4,6 +4,8 @@
   "description": "Resolve relative IRIs to absolute IRIs given a base IRI",
   "keywords": [
     "iri",
+    "uri",
+    "url",
     "relative",
     "absolute",
     "base",
