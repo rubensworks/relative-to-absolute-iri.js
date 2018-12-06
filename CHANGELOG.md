@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.1"></a>
+## [v1.0.1](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.0...v1.0.1) - 2018-12-06
+
+### Fixed
+* [Improve logic for removing dot segments](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/cfb8f8b593672577d258978dce81fe5ff29805aa)
+
 <a name="v1.0.0"></a>
 ## [v1.0.0] - 2018-10-31
 
