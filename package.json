@@ -9,7 +9,8 @@
     "relative",
     "absolute",
     "base",
-    "resolve"
+    "resolve",
+    "RFC3986"
   ],
   "main": "index.js",
   "typings": "index",
