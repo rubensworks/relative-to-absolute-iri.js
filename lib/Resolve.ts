@@ -20,7 +20,16 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     return baseIRI;
   }
 
-  // If the value starts with a hash, concat directly
+  // If the value starts with a query character, concat directly (but strip the existing query)
+  if (relativeIRI.startsWith('?')) {
+    const baseQueryPos: number = baseIRI.indexOf('?');
+    if (baseQueryPos > 0) {
+      baseIRI = baseIRI.substr(0, baseQueryPos);
+    }
+    return baseIRI + relativeIRI;
+  }
+
+  // If the value starts with a fragment character, concat directly
   if (relativeIRI.startsWith('#')) {
     return baseIRI + relativeIRI;
   }
@@ -77,7 +86,7 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
 
   // If the value starts with a '/', then prefix it with everything before the first effective slash of the base IRI.
   if (relativeIRI.indexOf('/') === 0) {
-    return baseIRI.substr(0, baseSlashAfterColonPos) + relativeIRI;
+    return baseIRI.substr(0, baseSlashAfterColonPos) + removeDotSegments(relativeIRI);
   }
 
   let baseIRIPath = baseIRI.substr(baseSlashAfterColonPos);
@@ -86,19 +95,105 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   // Ignore everything after the last '/' in the baseIRI path
   if (baseIRILastSlashPos >= 0 && baseIRILastSlashPos < baseIRIPath.length - 1) {
     baseIRIPath = baseIRIPath.substr(0, baseIRILastSlashPos + 1);
+    // Also remove the first character of the relative path if it starts with '.' (and not '..' or './')
+    // This change is only allowed if there is something else following the path
+    if (relativeIRI[0] === '.' && relativeIRI[1] !== '.' && relativeIRI[1] !== '/' && relativeIRI[2]) {
+      relativeIRI = relativeIRI.substr(1);
+    }
   }
 
   // Prefix the value with the baseIRI path where
   relativeIRI = baseIRIPath + relativeIRI;
-  // Remove all occurrences of '*/../' to collapse paths to parents
-  while (relativeIRI.match(/[^\/]*\/\.\.\//)) {
-    relativeIRI = relativeIRI.replace(/[^\/]*\/\.\.\//, '');
-  }
-  // Remove all occurrences of './'
-  relativeIRI = relativeIRI.replace(/\.\//g, '');
-  // Remove suffix '/.'
-  relativeIRI = relativeIRI.replace(/\/\.$/, '/');
+
+  // Remove dot segment from the IRI
+  relativeIRI = removeDotSegments(relativeIRI);
 
   // Prefix our transformed value with the part of the baseIRI until the first '/' after the first ':'.
   return baseIRI.substr(0, baseSlashAfterColonPos) + relativeIRI;
+}
+
+/**
+ * Remove dot segments from the given path,
+ * as described in https://www.ietf.org/rfc/rfc3986.txt (page 32).
+ * @param {string} path An IRI path.
+ * @return {string} A path, will always start with a '/'.
+ */
+export function removeDotSegments(path: string): string {
+  // Prepare a buffer with segments between each '/.
+  // Each segment represents an array of characters.
+  const segmentBuffers: string[][] = [];
+
+  let i = 0;
+  while (i < path.length) {
+    // Remove '/.' or '/..'
+    switch (path[i]) {
+    case '/':
+      if (path[i + 1] === '.') {
+        if (path[i + 2] === '.') {
+          // Append the remaining path as-is if we find an invalid character after the '.'
+          if (!isCharacterAllowedAfterRelativePathSegment(path[i + 3])) {
+            segmentBuffers[segmentBuffers.length - 1].push(path.substr(i));
+            i = path.length;
+            break;
+          }
+
+          // Go to parent directory,
+          // so we remove a parent segment
+          segmentBuffers.pop();
+
+          // Ensure that we end with a slash if there is a trailing '/..'
+          if (!path[i + 3]) {
+            segmentBuffers.push([]);
+          }
+
+          i += 3;
+        } else {
+          // Append the remaining path as-is if we find an invalid character after the '.'
+          if (!isCharacterAllowedAfterRelativePathSegment(path[i + 2])) {
+            segmentBuffers[segmentBuffers.length - 1].push(path.substr(i));
+            i = path.length;
+            break;
+          }
+
+          // Ensure that we end with a slash if there is a trailing '/.'
+          if (!path[i + 2]) {
+            segmentBuffers.push([]);
+          }
+
+          // Go to the current directory,
+          // so we do nothing
+          i += 2;
+        }
+      } else {
+        // Start a new segment
+        segmentBuffers.push([]);
+        i++;
+      }
+      break;
+    case '#':
+    case '?':
+      // Query and fragment string should be appended unchanged
+      if (!segmentBuffers.length) {
+        segmentBuffers.push([]);
+      }
+      segmentBuffers[segmentBuffers.length - 1].push(path.substr(i));
+      // Break the while loop
+      i = path.length;
+      break;
+    default:
+      // Not a special character, just append it to our buffer
+      if (!segmentBuffers.length) {
+        segmentBuffers.push([]);
+      }
+      segmentBuffers[segmentBuffers.length - 1].push(path[i]);
+      i++;
+      break;
+    }
+  }
+
+  return '/' + segmentBuffers.map((buffer) => buffer.join('')).join('/');
+}
+
+function isCharacterAllowedAfterRelativePathSegment(character: string) {
+  return !character || character === '#' || character === '?' || character === '/';
 }
