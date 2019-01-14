@@ -26,6 +26,11 @@ describe('#resolve', () => {
       .toEqual('abc');
   });
 
+  it('create an IRI from a relative IRI without dot segments when no baseIRI is given', () => {
+    expect(resolve('http://abc/../../'))
+      .toEqual('http://abc/');
+  });
+
   it('create an IRI from a relative IRI when a baseIRI is given', () => {
     expect(resolve('abc', 'http://base.org/'))
       .toEqual('http://base.org/abc');
@@ -46,6 +51,11 @@ describe('#resolve', () => {
       .toEqual('http:abc');
   });
 
+  it('create an IRI and ignore the baseIRI if the value contains a colon, and remove dot segments', () => {
+    expect(resolve('http://abc/../../', 'http://base.org/'))
+      .toEqual('http://abc/');
+  });
+
   it('error for a non-absolute baseIRI', () => {
     expect(() => resolve('abc', 'def')).toThrow();
   });
@@ -60,9 +70,19 @@ describe('#resolve', () => {
       .toEqual('http://base.org/abc');
   });
 
+  it('create an IRI from a baseIRI without a / in the path, and remove dot segments', () => {
+    expect(resolve('abc/./', 'http://base.org'))
+      .toEqual('http://base.org/abc/');
+  });
+
   it('create an IRI from the baseIRI scheme when the baseIRI contains only ://', () => {
     expect(resolve('abc', 'http://'))
       .toEqual('http:abc');
+  });
+
+  it('create an IRI from the baseIRI scheme when the baseIRI contains only ://, and remove dot segments', () => {
+    expect(resolve('abc/./', 'http://'))
+      .toEqual('http:abc/');
   });
 
   it('create an IRI from the baseIRI if something other than a / follows the :', () => {
@@ -70,9 +90,19 @@ describe('#resolve', () => {
       .toEqual('http:a/abc');
   });
 
+  it('create an IRI from the baseIRI if something other than a / follows the :, and remove dot segments', () => {
+    expect(resolve('abc/./', 'http:a'))
+      .toEqual('http:a/abc/');
+  });
+
   it('create an IRI from the baseIRI scheme if nothing follows the :', () => {
     expect(resolve('abc', 'http:'))
       .toEqual('http:abc');
+  });
+
+  it('create an IRI from the baseIRI scheme if nothing follows the :, and remove dot segments', () => {
+    expect(resolve('abc/./', 'http:'))
+      .toEqual('http:abc/');
   });
 
   it('create an IRI from an absolute path and ignore the path from the base IRI', () => {
@@ -368,6 +398,12 @@ describe('#resolve', () => {
   it('create an IRI from a http:g relative IRI and complex baseIRI', () => {
     expect(resolve('http:g', 'file:///a/bb/ccc/d;p?q'))
       .toEqual('http:g');
+  });
+
+  it('create an IRI from a //example.org/.././useless/../../scheme-relative relative IRI and complex baseIRI', () => {
+    expect(resolve('//example.org/.././useless/../../scheme-relative',
+      'http://example.com/some/deep/directory/and/file#with-a-fragment'))
+      .toEqual('http://example.org/scheme-relative');
   });
 });
 

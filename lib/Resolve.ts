@@ -36,13 +36,13 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
 
   // Ignore baseIRI if it is empty
   if (!baseIRI.length) {
-    return relativeIRI;
+    return removeDotSegmentsOfPath(relativeIRI, relativeIRI.indexOf(':'));
   }
 
   // Ignore baseIRI if the value is absolute
   const valueColonPos: number = relativeIRI.indexOf(':');
   if (valueColonPos >= 0) {
-    return relativeIRI;
+    return removeDotSegmentsOfPath(relativeIRI, valueColonPos);
   }
 
   // At this point, the baseIRI MUST be absolute, otherwise we error
@@ -54,7 +54,7 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   const baseIRIScheme = baseIRI.substr(0, baseColonPos + 1);
   // Inherit the baseIRI scheme if the value starts with '//'
   if (relativeIRI.indexOf('//') === 0) {
-    return baseIRIScheme + relativeIRI;
+    return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
   }
 
   // Check cases where '://' occurs in the baseIRI, and where there is no '/' after a ':' anymore.
@@ -66,9 +66,9 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
       // If something other than a '/' follows the '://', append the value after a '/',
       // otherwise, prefix the value with only the baseIRI scheme.
       if (baseIRI.length > baseColonPos + 3) {
-        return baseIRI + '/' + relativeIRI;
+        return baseIRI + '/' + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
       } else {
-        return baseIRIScheme + relativeIRI;
+        return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
       }
     }
   } else {
@@ -78,9 +78,9 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     // If something other than a '/' follows the ':', append the value after a '/',
     // otherwise, prefix the value with only the baseIRI scheme.
     if (baseIRI.length > baseColonPos + 1) {
-      return baseIRI + '/' + relativeIRI;
+      return baseIRI + '/' + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
     } else {
-      return baseIRIScheme + relativeIRI;
+      return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
     }
   }
 
@@ -192,6 +192,37 @@ export function removeDotSegments(path: string): string {
   }
 
   return '/' + segmentBuffers.map((buffer) => buffer.join('')).join('/');
+}
+
+/**
+ * Removes dot segments of the given IRI.
+ * @param {string} iri An IRI (or part of IRI).
+ * @param {number} colonPosition The position of the first ':' in the IRI.
+ * @return {string} The IRI where dot segments were removed.
+ */
+export function removeDotSegmentsOfPath(iri: string, colonPosition: number): string {
+  // Determine where we should start looking for the first '/' that indicates the start of the path
+  let searchOffset = colonPosition + 1;
+  if (colonPosition >= 0) {
+    if (iri[colonPosition + 1] === '/' && iri[colonPosition + 2] === '/') {
+      searchOffset = colonPosition + 3;
+    }
+  } else {
+    if (iri[0] === '/' && iri[1] === '/') {
+      searchOffset = 2;
+    }
+  }
+
+  // Determine the path
+  const pathSeparator = iri.indexOf('/', searchOffset);
+  if (pathSeparator < 0) {
+    return iri;
+  }
+  const base = iri.substr(0, pathSeparator);
+  const path = iri.substr(pathSeparator);
+
+  // Remove dot segments from the path
+  return base + removeDotSegments(path);
 }
 
 function isCharacterAllowedAfterRelativePathSegment(character: string) {
