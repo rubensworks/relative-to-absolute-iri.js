@@ -74,12 +74,9 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   } else {
     // If there is not even a single '/' after the ':'
     baseSlashAfterColonPos = baseIRI.indexOf('/', baseColonPos + 1);
-    // Always true: baseSlashAfterColonPos < 0
-    // If something other than a '/' follows the ':', append the value after a '/',
-    // otherwise, prefix the value with only the baseIRI scheme.
-    if (baseIRI.length > baseColonPos + 1) {
-      return baseIRI + '/' + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
-    } else {
+    if (baseSlashAfterColonPos < 0) {
+      // If we don't have a '/' after the ':',
+      // prefix the value with only the baseIRI scheme.
       return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
     }
   }

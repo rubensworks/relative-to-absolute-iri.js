@@ -87,12 +87,12 @@ describe('#resolve', () => {
 
   it('create an IRI from the baseIRI if something other than a / follows the :', () => {
     expect(resolve('abc', 'http:a'))
-      .toEqual('http:a/abc');
+      .toEqual('http:abc');
   });
 
   it('create an IRI from the baseIRI if something other than a / follows the :, and remove dot segments', () => {
     expect(resolve('abc/./', 'http:a'))
-      .toEqual('http:a/abc/');
+      .toEqual('http:abc/');
   });
 
   it('create an IRI from the baseIRI scheme if nothing follows the :', () => {
@@ -404,6 +404,21 @@ describe('#resolve', () => {
     expect(resolve('//example.org/.././useless/../../scheme-relative',
       'http://example.com/some/deep/directory/and/file#with-a-fragment'))
       .toEqual('http://example.org/scheme-relative');
+  });
+
+  it('create an IRI from a relative IRI a and baseIRI without // after scheme', () => {
+    expect(resolve('a', 'tag:example'))
+      .toEqual('tag:a');
+  });
+
+  it('create an IRI from a relative IRI a and baseIRI without // after scheme, with one /', () => {
+    expect(resolve('a', 'tag:example/foo'))
+      .toEqual('tag:example/a');
+  });
+
+  it('create an IRI from a relative IRI a and baseIRI without // after scheme, with two /', () => {
+    expect(resolve('a', 'tag:example/foo/'))
+      .toEqual('tag:example/foo/a');
   });
 });
 
