@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.3"></a>
+## [v1.0.3](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.2...v1.0.3) - 2019-06-12
+
+### Fixed
+* [Fix cases with schemes without '//'](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/731f470e3debbcad70a9b61510cfe44ae597af4c)
+
 <a name="v1.0.2"></a>
 ## [v1.0.2](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.1...v1.0.2) - 2019-01-14
 
