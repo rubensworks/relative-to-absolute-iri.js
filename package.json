@@ -1,6 +1,6 @@
 {
   "name": "relative-to-absolute-iri",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Resolve relative IRIs to absolute IRIs given a base IRI",
   "keywords": [
     "iri",

@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.4"></a>
+## [v1.0.4](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.3...v1.0.4) - 2019-06-18
+
+### Fixed
+* [Fix edge-cases with invalid dot segments with non-dot chars](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/391a438ca4a290829ee6696535ef793d1b8078c4)
+
 <a name="v1.0.3"></a>
 ## [v1.0.3](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.2...v1.0.3) - 2019-06-12
 
