@@ -129,6 +129,10 @@ export function removeDotSegments(path: string): string {
         if (path[i + 2] === '.') {
           // Append the remaining path as-is if we find an invalid character after the '.'
           if (!isCharacterAllowedAfterRelativePathSegment(path[i + 3])) {
+            if (!segmentBuffers.length) {
+              segmentBuffers.push([]);
+              i++;
+            }
             segmentBuffers[segmentBuffers.length - 1].push(path.substr(i));
             i = path.length;
             break;
@@ -147,6 +151,10 @@ export function removeDotSegments(path: string): string {
         } else {
           // Append the remaining path as-is if we find an invalid character after the '.'
           if (!isCharacterAllowedAfterRelativePathSegment(path[i + 2])) {
+            if (!segmentBuffers.length) {
+              segmentBuffers.push([]);
+              i++;
+            }
             segmentBuffers[segmentBuffers.length - 1].push(path.substr(i));
             i = path.length;
             break;

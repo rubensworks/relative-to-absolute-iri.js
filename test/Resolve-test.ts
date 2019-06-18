@@ -458,6 +458,11 @@ describe('#removeDotSegments', () => {
       .toEqual('/');
   });
 
+  it('should handle too many parent directories', () => {
+    expect(removeDotSegments('/abc/../../..'))
+      .toEqual('/');
+  });
+
   it('should handle a current directory', () => {
     expect(removeDotSegments('/abc/.'))
       .toEqual('/abc/');
@@ -601,5 +606,20 @@ describe('#removeDotSegments', () => {
   it('should end with a slash if there is a trailing /.', () => {
     expect(removeDotSegments('/a/bb/ccc/./g/.'))
       .toEqual('/a/bb/ccc/g/');
+  });
+
+  it('should ignore everything since triple dots.', () => {
+    expect(removeDotSegments('/invalid/...'))
+      .toEqual('/invalid/...');
+  });
+
+  it('should ignore everything since four dots.', () => {
+    expect(removeDotSegments('/invalid/../..../../../.../.htaccess'))
+      .toEqual('/..../../../.../.htaccess');
+  });
+
+  it('should ignore everything since a dot with an invalid char.', () => {
+    expect(removeDotSegments('/invalid/../.a/../../.../.htaccess'))
+      .toEqual('/.a/../../.../.htaccess');
   });
 });
