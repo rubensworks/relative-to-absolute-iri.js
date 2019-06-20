@@ -420,6 +420,16 @@ describe('#resolve', () => {
     expect(resolve('a', 'tag:example/foo/'))
       .toEqual('tag:example/foo/a');
   });
+
+  it('create an IRI from a relative IRI with a ... segment and one .. and baseIRI', () => {
+    expect(resolve('../.../../', 'http://example.org/a/b/c/'))
+      .toEqual('http://example.org/a/b/');
+  });
+
+  it('create an IRI from a relative IRI with a ... segment and two .. and baseIRI', () => {
+    expect(resolve('../.../../../', 'http://example.org/a/b/c/'))
+      .toEqual('http://example.org/a/');
+  });
 });
 
 describe('#removeDotSegments', () => {
@@ -608,18 +618,23 @@ describe('#removeDotSegments', () => {
       .toEqual('/a/bb/ccc/g/');
   });
 
-  it('should ignore everything since triple dots.', () => {
+  it('should handle triple dots as a normal segment.', () => {
     expect(removeDotSegments('/invalid/...'))
       .toEqual('/invalid/...');
   });
 
-  it('should ignore everything since four dots.', () => {
-    expect(removeDotSegments('/invalid/../..../../../.../.htaccess'))
-      .toEqual('/..../../../.../.htaccess');
+  it('should handle triple dots as a normal segment, followed by ...', () => {
+    expect(removeDotSegments('/invalid/.../..'))
+      .toEqual('/invalid/');
   });
 
-  it('should ignore everything since a dot with an invalid char.', () => {
+  it('should handle four dots as a normal segment.', () => {
+    expect(removeDotSegments('/invalid/../..../../../.../.htaccess'))
+      .toEqual('/.../.htaccess');
+  });
+
+  it('should handle a segment with dot and an invalid char as a normal segment.', () => {
     expect(removeDotSegments('/invalid/../.a/../../.../.htaccess'))
-      .toEqual('/.a/../../.../.htaccess');
+      .toEqual('/.../.htaccess');
   });
 });
