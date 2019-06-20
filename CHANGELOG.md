@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.5"></a>
+## [v1.0.5](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.4...v1.0.5) - 2019-06-20
+
+### Fixed
+* [Handle path segments with 2+ dots as regular segments with no meaning](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/5c42ec1b8a350ae5632ee9c556f173b2f7a4e190)
+
 <a name="v1.0.4"></a>
 ## [v1.0.4](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.3...v1.0.4) - 2019-06-18
 
