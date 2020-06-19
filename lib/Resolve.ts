@@ -17,6 +17,10 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
 
   // Convert empty value directly to base IRI
   if (!relativeIRI.length) {
+    // At this point, the baseIRI MUST be absolute, otherwise we error
+    if (baseIRI.indexOf(':') < 0) {
+      throw new Error(`Found invalid baseIRI '${baseIRI}' for value '${relativeIRI}'`);
+    }
     return baseIRI;
   }
 

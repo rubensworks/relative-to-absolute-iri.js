@@ -62,7 +62,13 @@ describe('#resolve', () => {
   });
 
   it('error for a non-absolute baseIRI', () => {
-    expect(() => resolve('abc', 'def')).toThrow();
+    expect(() => resolve('abc', 'def'))
+      .toThrow(new Error('Found invalid baseIRI \'def\' for value \'abc\''));
+  });
+
+  it('error for a non-absolute baseIRI when relativeIRI is missing', () => {
+    expect(() => resolve('', 'def'))
+      .toThrow(new Error('Found invalid baseIRI \'def\' for value \'\''));
   });
 
   it('create an IRI that has the baseIRI scheme if the value starts with //', () => {
