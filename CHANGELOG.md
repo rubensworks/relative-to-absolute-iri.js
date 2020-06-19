@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.6"></a>
+## [v1.0.6](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.3...v1.0.6) - 2020-06-19
+
+### Fixed
+* [Fix false positive with missing relative IRI and baseIRI without scheme](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/cb60d61174f76461891f3d0703dcf0deb5d17065)
+* [Fix false positive with missing baseIRI and relative IRI without scheme](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/f080de2b10bd4ac889ff67e694e391c7439002cb)
+
 <a name="v1.0.5"></a>
 ## [v1.0.5](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.4...v1.0.5) - 2019-06-20
 
