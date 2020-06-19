@@ -21,9 +21,14 @@ describe('#resolve', () => {
       .toEqual('http://base.org/');
   });
 
-  it('create an IRI from a relative IRI when no baseIRI is given', () => {
-    expect(resolve('abc'))
-      .toEqual('abc');
+  it('create an IRI from a relative IRI with scheme when no baseIRI is given', () => {
+    expect(resolve('ex:abc'))
+      .toEqual('ex:abc');
+  });
+
+  it('error when creating an IRI from a relative IRI without scheme when no baseIRI is given', () => {
+    expect(() => resolve('abc'))
+      .toThrow(new Error('Found invalid relative IRI \'abc\' for a missing baseIRI'));
   });
 
   it('create an IRI from a relative IRI without dot segments when no baseIRI is given', () => {

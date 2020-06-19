@@ -36,7 +36,11 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
 
   // Ignore baseIRI if it is empty
   if (!baseIRI.length) {
-    return removeDotSegmentsOfPath(relativeIRI, relativeIRI.indexOf(':'));
+    const relativeColonPos = relativeIRI.indexOf(':');
+    if (relativeColonPos < 0) {
+      throw new Error(`Found invalid relative IRI '${relativeIRI}' for a missing baseIRI`);
+    }
+    return removeDotSegmentsOfPath(relativeIRI, relativeColonPos);
   }
 
   // Ignore baseIRI if the value is absolute
