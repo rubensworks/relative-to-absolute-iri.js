@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.7"></a>
+## [v1.0.7](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.6...v1.0.7) - 2022-11-09
+
+### Fixed
+* [Include source map files in packed files](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/5a01a1bd710a398eb1c16b6de025d3d63a8bc1b2)
+
 <a name="v1.0.6"></a>
 ## [v1.0.6](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.3...v1.0.6) - 2020-06-19
 
