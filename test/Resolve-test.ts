@@ -441,6 +441,21 @@ describe('#resolve', () => {
     expect(resolve('../.../../../', 'http://example.org/a/b/c/'))
       .toEqual('http://example.org/a/');
   });
+
+  it('create an IRI from a relative IRI with a slash before a colon and a baseIRI with trailing slash', () => {
+    expect(resolve('x/y:z', 'http://base.org/path/'))
+      .toEqual('http://base.org/path/x/y:z');
+  });
+
+  it('create an IRI from a relative IRI with a slash before a colon and a baseIRI without trailing slash', () => {
+    expect(resolve('x/y:z', 'http://base.org/path'))
+      .toEqual('http://base.org/x/y:z');
+  });
+
+  it('create an IRI from a relative IRI with multiple colons after a slash', () => {
+    expect(resolve('x/y:z:w', 'http://base.org/path/'))
+      .toEqual('http://base.org/path/x/y:z:w');
+  });
 });
 
 describe('#removeDotSegments', () => {
