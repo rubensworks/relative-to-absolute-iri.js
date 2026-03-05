@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.8"></a>
+## [v1.0.8](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.7...v1.0.8) - 2026-03-05
+
+### Fixed
+* [Fix relative IRIs containing a forward slash before a colon being incorrectly treated as absolute (#28)](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/0bd83dc3961bd2304c6bf25b61af03fb73d76026)
+
 <a name="v1.0.7"></a>
 ## [v1.0.7](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.6...v1.0.7) - 2022-11-09
 
