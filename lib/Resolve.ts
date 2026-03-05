@@ -47,10 +47,15 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     return removeDotSegmentsOfPath(relativeIRI, relativeColonPos);
   }
 
-  // Ignore baseIRI if the value is absolute
+  // Ignore baseIRI if the value is absolute.
+  // Per RFC 3986, a URI scheme cannot contain a '/', so if a '/' appears before the first ':',
+  // the IRI is a relative path (not an absolute IRI).
   const valueColonPos: number = relativeIRI.indexOf(':');
   if (valueColonPos >= 0) {
-    return removeDotSegmentsOfPath(relativeIRI, valueColonPos);
+    const valueSlashPos: number = relativeIRI.indexOf('/');
+    if (valueSlashPos < 0 || valueColonPos < valueSlashPos) {
+      return removeDotSegmentsOfPath(relativeIRI, valueColonPos);
+    }
   }
 
   // At this point, the baseIRI MUST be absolute, otherwise we error
