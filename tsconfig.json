@@ -14,8 +14,7 @@
     "sourceMap": true,
     "inlineSources": true,
     "declaration": true,
-    "importHelpers": false,
-    "skipLibCheck": true
+    "importHelpers": false
   },
   "include": [
     "index.ts",
