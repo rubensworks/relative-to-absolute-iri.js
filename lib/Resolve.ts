@@ -52,7 +52,8 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   // so if one of them appears before the first ':', the IRI is relative (not an absolute IRI).
   let valueColonPos: number = relativeIRI.indexOf(':');
   if (valueColonPos >= 0) {
-    if (!/[/?#]/.test(relativeIRI.substr(0, valueColonPos))) {
+    const valueDelimiterPos: number = relativeIRI.search(/[/?#]/);
+    if (valueDelimiterPos < 0 || valueColonPos < valueDelimiterPos) {
       return removeDotSegmentsOfPath(relativeIRI, valueColonPos);
     }
     // The ':' is part of the relative IRI, not the end of a scheme.
@@ -224,9 +225,10 @@ export function removeDotSegmentsOfPath(iri: string, colonPosition: number): str
     }
   }
 
-  // Determine the path
+  // Determine the path, which starts at the first '/' unless a query or fragment comes first
   const pathSeparator = iri.indexOf('/', searchOffset);
-  if (pathSeparator < 0) {
+  const queryOrFragmentPos = iri.substr(searchOffset).search(/[?#]/);
+  if (pathSeparator < 0 || (queryOrFragmentPos >= 0 && searchOffset + queryOrFragmentPos < pathSeparator)) {
     return iri;
   }
   const base = iri.substr(0, pathSeparator);

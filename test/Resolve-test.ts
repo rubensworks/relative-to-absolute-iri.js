@@ -476,6 +476,21 @@ describe('#resolve', () => {
     expect(resolve('x/./y:z', 'tag:example'))
       .toEqual('tag:x/y:z');
   });
+
+  it('create an IRI from a relative IRI with dot segments and a colon in the query', () => {
+    expect(resolve('doc?next=/a/../b:c', 'urn:x:y'))
+      .toEqual('urn:doc?next=/a/../b:c');
+  });
+
+  it('create an IRI from a relative IRI with dot segments and a colon in the fragment', () => {
+    expect(resolve('doc#/a/../b:c', 'tag:example'))
+      .toEqual('tag:doc#/a/../b:c');
+  });
+
+  it('create an IRI from an absolute IRI with dot segments in the query', () => {
+    expect(resolve('urn:x?a/../b'))
+      .toEqual('urn:x?a/../b');
+  });
 });
 
 describe('#removeDotSegments', () => {
