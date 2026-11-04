@@ -38,6 +38,12 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     return baseIRI + relativeIRI;
   }
 
+  // The query of the baseIRI only applies to an empty value or a fragment (RFC 3986, section 5.2.2)
+  const baseIRIQueryPos: number = baseIRI.indexOf('?');
+  if (baseIRIQueryPos > 0) {
+    baseIRI = baseIRI.substr(0, baseIRIQueryPos);
+  }
+
   // Ignore baseIRI if it is empty
   if (!baseIRI.length) {
     const relativeColonPos = relativeIRI.indexOf(':');
@@ -78,13 +84,9 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     if (baseSlashAfterColonPos < 0) {
       // If something other than a '/' follows the '://', the baseIRI has an authority and an empty path:
       // merge a relative path with '/' (RFC 3986, section 5.2.3), keep an absolute path as it is,
-      // and remove dot segments. A query of the baseIRI does not apply to a path.
+      // and remove dot segments.
       // Otherwise, prefix the value with only the baseIRI scheme.
       if (baseIRI.length > baseColonPos + 3) {
-        const baseQueryPos: number = baseIRI.indexOf('?');
-        if (baseQueryPos > 0) {
-          baseIRI = baseIRI.substr(0, baseQueryPos);
-        }
         return baseIRI + removeDotSegments(relativeIRI[0] === '/' ? relativeIRI : '/' + relativeIRI);
       } else {
         return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);

@@ -121,6 +121,26 @@ describe('#resolve', () => {
       .toEqual('http://base.org/abc');
   });
 
+  it('create an IRI from a relative IRI with dot segments and a baseIRI without a / in the path', () => {
+    expect(resolve('abc/../def', 'http://base.org'))
+      .toEqual('http://base.org/def');
+  });
+
+  it('create an IRI from an absolute path with a colon and dot segments and a baseIRI without a / in the path', () => {
+    expect(resolve('/a:b/../c', 'http://base.org'))
+      .toEqual('http://base.org/c');
+  });
+
+  it('create an IRI from / and a baseIRI with a / in its query but without a / in the path', () => {
+    expect(resolve('/', 'http://base.org?a/b'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from a relative IRI and a baseIRI with a / in its query', () => {
+    expect(resolve('jjj', 'http://abc/def?ghi/jkl'))
+      .toEqual('http://abc/jjj');
+  });
+
   it('create an IRI from the baseIRI scheme when the baseIRI contains only ://', () => {
     expect(resolve('abc', 'http://'))
       .toEqual('http:abc');
