@@ -456,6 +456,26 @@ describe('#resolve', () => {
     expect(resolve('x/y:z:w', 'http://base.org/path/'))
       .toEqual('http://base.org/path/x/y:z:w');
   });
+
+  it('create an IRI from a relative IRI with a question mark before a colon', () => {
+    expect(resolve('a?b:c', 'http://base.org/path/x'))
+      .toEqual('http://base.org/path/a?b:c');
+  });
+
+  it('create an IRI from a relative IRI with a hash before a colon', () => {
+    expect(resolve('a#b:c', 'http://base.org/path/x'))
+      .toEqual('http://base.org/path/a#b:c');
+  });
+
+  it('create an IRI from a network-path reference with a dot segment before a colon', () => {
+    expect(resolve('//h/./a:b', 'http://base.org/path/'))
+      .toEqual('http://h/a:b');
+  });
+
+  it('create an IRI from a relative IRI with a dot segment before a colon and a baseIRI without //', () => {
+    expect(resolve('x/./y:z', 'tag:example'))
+      .toEqual('tag:x/y:z');
+  });
 });
 
 describe('#removeDotSegments', () => {

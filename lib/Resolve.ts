@@ -48,14 +48,15 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   }
 
   // Ignore baseIRI if the value is absolute.
-  // Per RFC 3986, a URI scheme cannot contain a '/', so if a '/' appears before the first ':',
-  // the IRI is a relative path (not an absolute IRI).
-  const valueColonPos: number = relativeIRI.indexOf(':');
+  // Per RFC 3986 (section 3.1 and appendix B), a URI scheme cannot contain a '/', '?' or '#',
+  // so if one of them appears before the first ':', the IRI is relative (not an absolute IRI).
+  let valueColonPos: number = relativeIRI.indexOf(':');
   if (valueColonPos >= 0) {
-    const valueSlashPos: number = relativeIRI.indexOf('/');
-    if (valueSlashPos < 0 || valueColonPos < valueSlashPos) {
+    if (!/[/?#]/.test(relativeIRI.substr(0, valueColonPos))) {
       return removeDotSegmentsOfPath(relativeIRI, valueColonPos);
     }
+    // The ':' is part of the relative IRI, not the end of a scheme.
+    valueColonPos = -1;
   }
 
   // At this point, the baseIRI MUST be absolute, otherwise we error
