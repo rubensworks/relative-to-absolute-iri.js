@@ -86,6 +86,41 @@ describe('#resolve', () => {
       .toEqual('http://base.org/abc/');
   });
 
+  it('create an IRI from an absolute path and a baseIRI without a / in the path', () => {
+    expect(resolve('/abc', 'http://base.org'))
+      .toEqual('http://base.org/abc');
+  });
+
+  it('create an IRI from / and a baseIRI without a / in the path', () => {
+    expect(resolve('/', 'http://base.org'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from an absolute path with dot segments and a baseIRI without a / in the path', () => {
+    expect(resolve('/abc/../def', 'http://base.org'))
+      .toEqual('http://base.org/def');
+  });
+
+  it('create an IRI from a parent segment and a baseIRI without a / in the path', () => {
+    expect(resolve('../abc', 'http://base.org'))
+      .toEqual('http://base.org/abc');
+  });
+
+  it('create an IRI from .. and a baseIRI without a / in the path', () => {
+    expect(resolve('..', 'http://base.org'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from a relative IRI with dot segments in the query and a baseIRI without a / in the path', () => {
+    expect(resolve('abc?x=/../y', 'http://base.org'))
+      .toEqual('http://base.org/abc?x=/../y');
+  });
+
+  it('create an IRI from a relative IRI and a baseIRI with a query but without a / in the path', () => {
+    expect(resolve('abc', 'http://base.org?q'))
+      .toEqual('http://base.org/abc');
+  });
+
   it('create an IRI from the baseIRI scheme when the baseIRI contains only ://', () => {
     expect(resolve('abc', 'http://'))
       .toEqual('http:abc');

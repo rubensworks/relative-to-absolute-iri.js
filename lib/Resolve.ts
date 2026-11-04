@@ -76,10 +76,16 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     // If there is no additional '/' after the '//'.
     baseSlashAfterColonPos = baseIRI.indexOf('/', baseColonPos + 3);
     if (baseSlashAfterColonPos < 0) {
-      // If something other than a '/' follows the '://', append the value after a '/',
-      // otherwise, prefix the value with only the baseIRI scheme.
+      // If something other than a '/' follows the '://', the baseIRI has an authority and an empty path:
+      // merge a relative path with '/' (RFC 3986, section 5.2.3), keep an absolute path as it is,
+      // and remove dot segments. A query of the baseIRI does not apply to a path.
+      // Otherwise, prefix the value with only the baseIRI scheme.
       if (baseIRI.length > baseColonPos + 3) {
-        return baseIRI + '/' + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
+        const baseQueryPos: number = baseIRI.indexOf('?');
+        if (baseQueryPos > 0) {
+          baseIRI = baseIRI.substr(0, baseQueryPos);
+        }
+        return baseIRI + removeDotSegments(relativeIRI[0] === '/' ? relativeIRI : '/' + relativeIRI);
       } else {
         return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
       }
