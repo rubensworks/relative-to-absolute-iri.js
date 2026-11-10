@@ -119,11 +119,6 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   // Ignore everything after the last '/' in the baseIRI path
   if (baseIRILastSlashPos >= 0 && baseIRILastSlashPos < baseIRIPath.length - 1) {
     baseIRIPath = baseIRIPath.substr(0, baseIRILastSlashPos + 1);
-    // Also remove the first character of the relative path if it starts with '.' (and not '..' or './')
-    // This change is only allowed if there is something else following the path
-    if (relativeIRI[0] === '.' && relativeIRI[1] !== '.' && relativeIRI[1] !== '/' && relativeIRI[2]) {
-      relativeIRI = relativeIRI.substr(1);
-    }
   }
 
   // Prefix the value with the baseIRI path where
