@@ -24,24 +24,20 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     return baseIRI;
   }
 
-  // If the value starts with a query character, concat directly (but strip the existing query)
-  if (relativeIRI.startsWith('?')) {
-    const baseQueryPos: number = baseIRI.indexOf('?');
-    if (baseQueryPos > 0) {
-      baseIRI = baseIRI.substr(0, baseQueryPos);
-    }
-    return baseIRI + relativeIRI;
-  }
-
   // If the value starts with a fragment character, concat directly
   if (relativeIRI.startsWith('#')) {
     return baseIRI + relativeIRI;
   }
 
   // The query of the baseIRI only applies to an empty value or a fragment (RFC 3986, section 5.2.2)
-  const baseIRIQueryPos: number = baseIRI.indexOf('?');
-  if (baseIRIQueryPos > 0) {
-    baseIRI = baseIRI.substr(0, baseIRIQueryPos);
+  const baseQueryPos: number = baseIRI.indexOf('?');
+  if (baseQueryPos > 0) {
+    baseIRI = baseIRI.substr(0, baseQueryPos);
+  }
+
+  // If the value starts with a query character, concat directly
+  if (relativeIRI.startsWith('?')) {
+    return baseIRI + relativeIRI;
   }
 
   // Ignore baseIRI if it is empty
