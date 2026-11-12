@@ -157,8 +157,8 @@ export function removeDotSegments(path: string): string {
           // so we remove a parent segment
           segmentBuffers.pop();
 
-          // Ensure that we end with a slash if there is a trailing '/..'
-          if (!path[i + 3]) {
+          // Ensure that we end with a slash if the path ends with '/..', also before a query or fragment
+          if (path[i + 3] !== '/') {
             segmentBuffers.push([]);
           }
 
@@ -171,8 +171,8 @@ export function removeDotSegments(path: string): string {
             break;
           }
 
-          // Ensure that we end with a slash if there is a trailing '/.'
-          if (!path[i + 2]) {
+          // Ensure that we end with a slash if the path ends with '/.', also before a query or fragment
+          if (path[i + 2] !== '/') {
             segmentBuffers.push([]);
           }
 

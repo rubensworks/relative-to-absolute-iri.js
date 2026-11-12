@@ -197,6 +197,16 @@ describe('#resolve', () => {
       .toEqual('http://ex.org/x/yy/zzz/.x/a');
   });
 
+  it('create an IRI from an absolute IRI with a dot segment before a query', () => {
+    expect(resolve('http://abc/def/.?x'))
+      .toEqual('http://abc/def/?x');
+  });
+
+  it('create an IRI from a network-path reference with a double dot segment before a fragment', () => {
+    expect(resolve('//abc/def/ghi/..#x', 'http://base.org/'))
+      .toEqual('http://abc/def/#x');
+  });
+
   it('create an IRI from the baseIRI scheme when the baseIRI contains only ://', () => {
     expect(resolve('abc', 'http://'))
       .toEqual('http:abc');
@@ -692,7 +702,7 @@ describe('#removeDotSegments', () => {
 
   it('should handle mixed current and parent directories with a fragment', () => {
     expect(removeDotSegments('/abc/def/./ghi/../..#abc'))
-      .toEqual('/abc#abc');
+      .toEqual('/abc/#abc');
   });
 
   it('should handle a fragment without another path', () => {
@@ -753,6 +763,26 @@ describe('#removeDotSegments', () => {
   it('should end with a slash if there is a trailing /.', () => {
     expect(removeDotSegments('/a/bb/ccc/./g/.'))
       .toEqual('/a/bb/ccc/g/');
+  });
+
+  it('should end with a slash if there is a /. before a query', () => {
+    expect(removeDotSegments('/abc/def/.?a=b'))
+      .toEqual('/abc/def/?a=b');
+  });
+
+  it('should end with a slash if there is a /. before a fragment', () => {
+    expect(removeDotSegments('/abc/def/.#abc'))
+      .toEqual('/abc/def/#abc');
+  });
+
+  it('should end with a slash if there is a /.. before a query', () => {
+    expect(removeDotSegments('/abc/def/..?a=b'))
+      .toEqual('/abc/?a=b');
+  });
+
+  it('should end with a slash if there is a /.. before a fragment', () => {
+    expect(removeDotSegments('/abc/def/..#abc'))
+      .toEqual('/abc/#abc');
   });
 
   it('should handle triple dots as a normal segment.', () => {
