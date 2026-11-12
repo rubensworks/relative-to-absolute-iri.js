@@ -66,6 +66,11 @@ describe('#resolve', () => {
       .toThrow(new Error('Found invalid baseIRI \'def\' for value \'abc\''));
   });
 
+  it('error for a baseIRI without a scheme whose only colon is in its query', () => {
+    expect(() => resolve('abc', 'def?x:y'))
+      .toThrow(new Error('Found invalid baseIRI \'def\' for value \'abc\''));
+  });
+
   it('error for a non-absolute baseIRI when relativeIRI is missing', () => {
     expect(() => resolve('', 'def'))
       .toThrow(new Error('Found invalid baseIRI \'def\' for value \'\''));
