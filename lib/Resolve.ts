@@ -52,15 +52,14 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   // Ignore baseIRI if the value is absolute.
   // Per RFC 3986 (section 3.1 and appendix B), a URI scheme cannot contain a '/', '?' or '#',
   // so if one of them appears before the first ':', the IRI is relative (not an absolute IRI).
-  let valueColonPos: number = relativeIRI.indexOf(':');
+  const valueColonPos: number = relativeIRI.indexOf(':');
   if (valueColonPos >= 0) {
     const valueDelimiterPos: number = relativeIRI.search(/[/?#]/);
     if (valueDelimiterPos < 0 || valueColonPos < valueDelimiterPos) {
       return removeDotSegmentsOfPath(relativeIRI, valueColonPos);
     }
-    // The ':' is part of the relative IRI, not the end of a scheme.
-    valueColonPos = -1;
   }
+  // From here on, the value has no scheme: a ':' in it does not end a scheme.
 
   // At this point, the baseIRI MUST be absolute, otherwise we error
   const baseColonPos: number = baseIRI.indexOf(':');
@@ -71,7 +70,7 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   const baseIRIScheme = baseIRI.substr(0, baseColonPos + 1);
   // Inherit the baseIRI scheme if the value starts with '//'
   if (relativeIRI.indexOf('//') === 0) {
-    return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
+    return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, -1);
   }
 
   // Check cases where '://' occurs in the baseIRI, and where there is no '/' after a ':' anymore.
@@ -87,7 +86,7 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
         baseIRI += '/';
         baseSlashAfterColonPos = baseIRI.length - 1;
       } else {
-        return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
+        return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, -1);
       }
     }
   } else {
@@ -96,7 +95,7 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     if (baseSlashAfterColonPos < 0) {
       // If we don't have a '/' after the ':',
       // prefix the value with only the baseIRI scheme.
-      return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
+      return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, -1);
     }
   }
 
@@ -208,7 +207,7 @@ export function removeDotSegments(path: string): string {
 /**
  * Removes dot segments of the given IRI.
  * @param {string} iri An IRI (or part of IRI).
- * @param {number} colonPosition The position of the first ':' in the IRI.
+ * @param {number} colonPosition The position of the ':' that ends the scheme of the IRI, or -1 if it has no scheme.
  * @return {string} The IRI where dot segments were removed.
  */
 export function removeDotSegmentsOfPath(iri: string, colonPosition: number): string {
@@ -225,11 +224,11 @@ export function removeDotSegmentsOfPath(iri: string, colonPosition: number): str
   }
 
   // Determine the path, which starts at the first '/' unless a query or fragment comes first
-  const pathSeparator = iri.indexOf('/', searchOffset);
-  const queryOrFragmentPos = iri.substr(searchOffset).search(/[?#]/);
-  if (pathSeparator < 0 || (queryOrFragmentPos >= 0 && searchOffset + queryOrFragmentPos < pathSeparator)) {
+  const delimiterPos = iri.substr(searchOffset).search(/[/?#]/);
+  if (delimiterPos < 0 || iri[searchOffset + delimiterPos] !== '/') {
     return iri;
   }
+  const pathSeparator = searchOffset + delimiterPos;
   const base = iri.substr(0, pathSeparator);
   const path = iri.substr(pathSeparator);
 
