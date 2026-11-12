@@ -98,15 +98,9 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     }
   }
 
-  // Dot segments are only removed from the path of the value, which ends at the first '?' or '#'
-  // (RFC 3986, section 5.2.2)
-  const pathEnd: number = relativeIRI.search(/[?#]|$/);
-  const queryAndFragment: string = relativeIRI.substr(pathEnd);
-  relativeIRI = relativeIRI.substr(0, pathEnd);
-
   // If the value starts with a '/', then prefix it with everything before the first effective slash of the base IRI.
   if (relativeIRI.indexOf('/') === 0) {
-    return baseIRI.substr(0, baseSlashAfterColonPos) + removeDotSegments(relativeIRI) + queryAndFragment;
+    return baseIRI.substr(0, baseSlashAfterColonPos) + removeDotSegments(relativeIRI);
   }
 
   let baseIRIPath = baseIRI.substr(baseSlashAfterColonPos);
@@ -123,9 +117,8 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   // Remove dot segment from the IRI
   relativeIRI = removeDotSegments(relativeIRI);
 
-  // Prefix our transformed value with the part of the baseIRI until the first '/' after the first ':',
-  // and append its query and fragment.
-  return baseIRI.substr(0, baseSlashAfterColonPos) + relativeIRI + queryAndFragment;
+  // Prefix our transformed value with the part of the baseIRI until the first '/' after the first ':'.
+  return baseIRI.substr(0, baseSlashAfterColonPos) + relativeIRI;
 }
 
 /**
