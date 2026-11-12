@@ -603,6 +603,16 @@ describe('#resolve', () => {
       .toEqual('tag:x/y:z');
   });
 
+  it('create an IRI from a network-path reference with a colon and a dot segment before a query', () => {
+    expect(resolve('//h/a:b/.?q', 'http://x/'))
+      .toEqual('http://h/a:b/?q');
+  });
+
+  it('create an IRI from a relative IRI with a colon and a dot segment before a query and a baseIRI without //', () => {
+    expect(resolve('z/a:b/.?', 'urn:x'))
+      .toEqual('urn:z/a:b/?');
+  });
+
   it('create an IRI from a relative IRI with dot segments and a colon in the query', () => {
     expect(resolve('doc?next=/a/../b:c', 'urn:x:y'))
       .toEqual('urn:doc?next=/a/../b:c');
