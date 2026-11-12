@@ -66,6 +66,11 @@ describe('#resolve', () => {
       .toThrow(new Error('Found invalid baseIRI \'def\' for value \'abc\''));
   });
 
+  it('error for a baseIRI without a scheme whose only colon is in its query', () => {
+    expect(() => resolve('abc', 'def?x:y'))
+      .toThrow(new Error('Found invalid baseIRI \'def\' for value \'abc\''));
+  });
+
   it('error for a non-absolute baseIRI when relativeIRI is missing', () => {
     expect(() => resolve('', 'def'))
       .toThrow(new Error('Found invalid baseIRI \'def\' for value \'\''));
@@ -84,6 +89,127 @@ describe('#resolve', () => {
   it('create an IRI from a baseIRI without a / in the path, and remove dot segments', () => {
     expect(resolve('abc/./', 'http://base.org'))
       .toEqual('http://base.org/abc/');
+  });
+
+  it('create an IRI from an absolute path and a baseIRI without a / in the path', () => {
+    expect(resolve('/abc', 'http://base.org'))
+      .toEqual('http://base.org/abc');
+  });
+
+  it('create an IRI from / and a baseIRI without a / in the path', () => {
+    expect(resolve('/', 'http://base.org'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from an absolute path with dot segments and a baseIRI without a / in the path', () => {
+    expect(resolve('/abc/../def', 'http://base.org'))
+      .toEqual('http://base.org/def');
+  });
+
+  it('create an IRI from a parent segment and a baseIRI without a / in the path', () => {
+    expect(resolve('../abc', 'http://base.org'))
+      .toEqual('http://base.org/abc');
+  });
+
+  it('create an IRI from .. and a baseIRI without a / in the path', () => {
+    expect(resolve('..', 'http://base.org'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from . and a baseIRI without a / in the path', () => {
+    expect(resolve('.', 'http://base.org'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from ./ and a baseIRI without a / in the path', () => {
+    expect(resolve('./', 'http://base.org'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from ./abc and a baseIRI without a / in the path', () => {
+    expect(resolve('./abc', 'http://base.org'))
+      .toEqual('http://base.org/abc');
+  });
+
+  it('create an IRI from a relative IRI with a dot segment before a query and a baseIRI without a / in the path', () => {
+    expect(resolve('abc/.?x', 'http://base.org'))
+      .toEqual('http://base.org/abc/?x');
+  });
+
+  it('create an IRI from a relative IRI with a double dot segment before a fragment ' +
+    'and a baseIRI without a / in the path', () => {
+    expect(resolve('abc/def/..#x', 'http://base.org'))
+      .toEqual('http://base.org/abc/#x');
+  });
+
+  it('create an IRI from a relative IRI with a query and a baseIRI without a / in the path', () => {
+    expect(resolve('abc?x=1', 'http://base.org'))
+      .toEqual('http://base.org/abc?x=1');
+  });
+
+  it('create an IRI from a relative IRI with dot segments in the query and a baseIRI without a / in the path', () => {
+    expect(resolve('abc?x=/../y', 'http://base.org'))
+      .toEqual('http://base.org/abc?x=/../y');
+  });
+
+  it('create an IRI from a relative IRI and a baseIRI with a query but without a / in the path', () => {
+    expect(resolve('abc', 'http://base.org?q'))
+      .toEqual('http://base.org/abc');
+  });
+
+  it('create an IRI from a relative IRI with dot segments and a baseIRI without a / in the path', () => {
+    expect(resolve('abc/../def', 'http://base.org'))
+      .toEqual('http://base.org/def');
+  });
+
+  it('create an IRI from an absolute path with a colon and dot segments and a baseIRI without a / in the path', () => {
+    expect(resolve('/a:b/../c', 'http://base.org'))
+      .toEqual('http://base.org/c');
+  });
+
+  it('create an IRI from / and a baseIRI with a / in its query but without a / in the path', () => {
+    expect(resolve('/', 'http://base.org?a/b'))
+      .toEqual('http://base.org/');
+  });
+
+  it('create an IRI from a relative IRI and a baseIRI with a / in its query', () => {
+    expect(resolve('jjj', 'http://abc/def?ghi/jkl'))
+      .toEqual('http://abc/jjj');
+  });
+
+  it('create an IRI from a relative IRI with a dot segment before a query and a baseIRI', () => {
+    expect(resolve('abc/.?x', 'http://base.org/'))
+      .toEqual('http://base.org/abc/?x');
+  });
+
+  it('create an IRI from . before a query and a baseIRI with a path ending in / and a query', () => {
+    expect(resolve('.?y', 'http://abc/def/?x'))
+      .toEqual('http://abc/def/?y');
+  });
+
+  it('create an IRI from . before a fragment and a baseIRI with a path ending in / and a query', () => {
+    expect(resolve('.#y', 'http://abc/def/?x'))
+      .toEqual('http://abc/def/#y');
+  });
+
+  it('create an IRI from a segment starting with . and a baseIRI', () => {
+    expect(resolve('.gh', 'http://example.org/a'))
+      .toEqual('http://example.org/.gh');
+  });
+
+  it('create an IRI from a relative path whose first segment starts with . and a baseIRI', () => {
+    expect(resolve('.x/a', 'http://ex.org/x/yy/zzz/f.ttl'))
+      .toEqual('http://ex.org/x/yy/zzz/.x/a');
+  });
+
+  it('create an IRI from an absolute IRI with a dot segment before a query', () => {
+    expect(resolve('http://abc/def/.?x'))
+      .toEqual('http://abc/def/?x');
+  });
+
+  it('create an IRI from a network-path reference with a double dot segment before a fragment', () => {
+    expect(resolve('//abc/def/ghi/..#x', 'http://base.org/'))
+      .toEqual('http://abc/def/#x');
   });
 
   it('create an IRI from the baseIRI scheme when the baseIRI contains only ://', () => {
@@ -456,6 +582,51 @@ describe('#resolve', () => {
     expect(resolve('x/y:z:w', 'http://base.org/path/'))
       .toEqual('http://base.org/path/x/y:z:w');
   });
+
+  it('create an IRI from a relative IRI with a question mark before a colon', () => {
+    expect(resolve('a?b:c', 'http://base.org/path/x'))
+      .toEqual('http://base.org/path/a?b:c');
+  });
+
+  it('create an IRI from a relative IRI with a hash before a colon', () => {
+    expect(resolve('a#b:c', 'http://base.org/path/x'))
+      .toEqual('http://base.org/path/a#b:c');
+  });
+
+  it('create an IRI from a network-path reference with a dot segment before a colon', () => {
+    expect(resolve('//h/./a:b', 'http://base.org/path/'))
+      .toEqual('http://h/a:b');
+  });
+
+  it('create an IRI from a relative IRI with a dot segment before a colon and a baseIRI without //', () => {
+    expect(resolve('x/./y:z', 'tag:example'))
+      .toEqual('tag:x/y:z');
+  });
+
+  it('create an IRI from a network-path reference with a colon and a dot segment before a query', () => {
+    expect(resolve('//h/a:b/.?q', 'http://x/'))
+      .toEqual('http://h/a:b/?q');
+  });
+
+  it('create an IRI from a relative IRI with a colon and a dot segment before a query and a baseIRI without //', () => {
+    expect(resolve('z/a:b/.?', 'urn:x'))
+      .toEqual('urn:z/a:b/?');
+  });
+
+  it('create an IRI from a relative IRI with dot segments and a colon in the query', () => {
+    expect(resolve('doc?next=/a/../b:c', 'urn:x:y'))
+      .toEqual('urn:doc?next=/a/../b:c');
+  });
+
+  it('create an IRI from a relative IRI with dot segments and a colon in the fragment', () => {
+    expect(resolve('doc#/a/../b:c', 'tag:example'))
+      .toEqual('tag:doc#/a/../b:c');
+  });
+
+  it('create an IRI from an absolute IRI with dot segments in the query', () => {
+    expect(resolve('urn:x?a/../b'))
+      .toEqual('urn:x?a/../b');
+  });
 });
 
 describe('#removeDotSegments', () => {
@@ -581,7 +752,7 @@ describe('#removeDotSegments', () => {
 
   it('should handle mixed current and parent directories with a fragment', () => {
     expect(removeDotSegments('/abc/def/./ghi/../..#abc'))
-      .toEqual('/abc#abc');
+      .toEqual('/abc/#abc');
   });
 
   it('should handle a fragment without another path', () => {
@@ -642,6 +813,26 @@ describe('#removeDotSegments', () => {
   it('should end with a slash if there is a trailing /.', () => {
     expect(removeDotSegments('/a/bb/ccc/./g/.'))
       .toEqual('/a/bb/ccc/g/');
+  });
+
+  it('should end with a slash if there is a /. before a query', () => {
+    expect(removeDotSegments('/abc/def/.?a=b'))
+      .toEqual('/abc/def/?a=b');
+  });
+
+  it('should end with a slash if there is a /. before a fragment', () => {
+    expect(removeDotSegments('/abc/def/.#abc'))
+      .toEqual('/abc/def/#abc');
+  });
+
+  it('should end with a slash if there is a /.. before a query', () => {
+    expect(removeDotSegments('/abc/def/..?a=b'))
+      .toEqual('/abc/?a=b');
+  });
+
+  it('should end with a slash if there is a /.. before a fragment', () => {
+    expect(removeDotSegments('/abc/def/..#abc'))
+      .toEqual('/abc/#abc');
   });
 
   it('should handle triple dots as a normal segment.', () => {
