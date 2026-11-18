@@ -582,6 +582,51 @@ describe('#resolve', () => {
     expect(resolve('x/y:z:w', 'http://base.org/path/'))
       .toEqual('http://base.org/path/x/y:z:w');
   });
+
+  it('create an IRI from a relative IRI with a question mark before a colon', () => {
+    expect(resolve('a?b:c', 'http://base.org/path/x'))
+      .toEqual('http://base.org/path/a?b:c');
+  });
+
+  it('create an IRI from a relative IRI with a hash before a colon', () => {
+    expect(resolve('a#b:c', 'http://base.org/path/x'))
+      .toEqual('http://base.org/path/a#b:c');
+  });
+
+  it('create an IRI from a network-path reference with a dot segment before a colon', () => {
+    expect(resolve('//h/./a:b', 'http://base.org/path/'))
+      .toEqual('http://h/a:b');
+  });
+
+  it('create an IRI from a relative IRI with a dot segment before a colon and a baseIRI without //', () => {
+    expect(resolve('x/./y:z', 'tag:example'))
+      .toEqual('tag:x/y:z');
+  });
+
+  it('create an IRI from a network-path reference with a colon and a dot segment before a query', () => {
+    expect(resolve('//h/a:b/.?q', 'http://x/'))
+      .toEqual('http://h/a:b/?q');
+  });
+
+  it('create an IRI from a relative IRI with a colon and a dot segment before a query and a baseIRI without //', () => {
+    expect(resolve('z/a:b/.?', 'urn:x'))
+      .toEqual('urn:z/a:b/?');
+  });
+
+  it('create an IRI from a relative IRI with dot segments and a colon in the query', () => {
+    expect(resolve('doc?next=/a/../b:c', 'urn:x:y'))
+      .toEqual('urn:doc?next=/a/../b:c');
+  });
+
+  it('create an IRI from a relative IRI with dot segments and a colon in the fragment', () => {
+    expect(resolve('doc#/a/../b:c', 'tag:example'))
+      .toEqual('tag:doc#/a/../b:c');
+  });
+
+  it('create an IRI from an absolute IRI with dot segments in the query', () => {
+    expect(resolve('urn:x?a/../b'))
+      .toEqual('urn:x?a/../b');
+  });
 });
 
 describe('#removeDotSegments', () => {
