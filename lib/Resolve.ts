@@ -24,17 +24,19 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     return baseIRI;
   }
 
-  // If the value starts with a query character, concat directly (but strip the existing query)
-  if (relativeIRI.startsWith('?')) {
-    const baseQueryPos: number = baseIRI.indexOf('?');
-    if (baseQueryPos > 0) {
-      baseIRI = baseIRI.substr(0, baseQueryPos);
-    }
+  // If the value starts with a fragment character, concat directly
+  if (relativeIRI.startsWith('#')) {
     return baseIRI + relativeIRI;
   }
 
-  // If the value starts with a fragment character, concat directly
-  if (relativeIRI.startsWith('#')) {
+  // The query of the baseIRI only applies to an empty value or a fragment (RFC 3986, section 5.2.2)
+  const baseQueryPos: number = baseIRI.indexOf('?');
+  if (baseQueryPos > 0) {
+    baseIRI = baseIRI.substr(0, baseQueryPos);
+  }
+
+  // If the value starts with a query character, concat directly
+  if (relativeIRI.startsWith('?')) {
     return baseIRI + relativeIRI;
   }
 
@@ -76,10 +78,12 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
     // If there is no additional '/' after the '//'.
     baseSlashAfterColonPos = baseIRI.indexOf('/', baseColonPos + 3);
     if (baseSlashAfterColonPos < 0) {
-      // If something other than a '/' follows the '://', append the value after a '/',
-      // otherwise, prefix the value with only the baseIRI scheme.
+      // If something other than a '/' follows the '://', the baseIRI has an authority and an empty path,
+      // so its path is taken as '/' (RFC 3986, section 5.2.3).
+      // Otherwise, prefix the value with only the baseIRI scheme.
       if (baseIRI.length > baseColonPos + 3) {
-        return baseIRI + '/' + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
+        baseIRI += '/';
+        baseSlashAfterColonPos = baseIRI.length - 1;
       } else {
         return baseIRIScheme + removeDotSegmentsOfPath(relativeIRI, valueColonPos);
       }
@@ -105,11 +109,6 @@ export function resolve(relativeIRI: string, baseIRI?: string): string {
   // Ignore everything after the last '/' in the baseIRI path
   if (baseIRILastSlashPos >= 0 && baseIRILastSlashPos < baseIRIPath.length - 1) {
     baseIRIPath = baseIRIPath.substr(0, baseIRILastSlashPos + 1);
-    // Also remove the first character of the relative path if it starts with '.' (and not '..' or './')
-    // This change is only allowed if there is something else following the path
-    if (relativeIRI[0] === '.' && relativeIRI[1] !== '.' && relativeIRI[1] !== '/' && relativeIRI[2]) {
-      relativeIRI = relativeIRI.substr(1);
-    }
   }
 
   // Prefix the value with the baseIRI path where
@@ -151,8 +150,8 @@ export function removeDotSegments(path: string): string {
           // so we remove a parent segment
           segmentBuffers.pop();
 
-          // Ensure that we end with a slash if there is a trailing '/..'
-          if (!path[i + 3]) {
+          // Ensure that we end with a slash if the path ends with '/..', also before a query or fragment
+          if (path[i + 3] !== '/') {
             segmentBuffers.push([]);
           }
 
@@ -165,8 +164,8 @@ export function removeDotSegments(path: string): string {
             break;
           }
 
-          // Ensure that we end with a slash if there is a trailing '/.'
-          if (!path[i + 2]) {
+          // Ensure that we end with a slash if the path ends with '/.', also before a query or fragment
+          if (path[i + 2] !== '/') {
             segmentBuffers.push([]);
           }
 
