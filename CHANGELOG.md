@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.0.9"></a>
+## [v1.0.9](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.8...v1.0.9) - 2026-11-18
+
+### Fixed
+* [Fix relative IRIs with ? or # before its first colon not being seen as relative (#34)](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/077dbd9e487aef1a975942f5b7e696289167fda6)
+* [Fix base IRIs without a path not being resolved correctly (#33)](https://github.com/rubensworks/relative-to-absolute-iri.js/commit/b3d9b2dc7d7834a939e7dd6686e190731200efbe)
+
 <a name="v1.0.8"></a>
 ## [v1.0.8](https://github.com/rubensworks/relative-to-absolute-iri.js/compare/v1.0.7...v1.0.8) - 2026-03-05
 
