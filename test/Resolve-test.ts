@@ -1,4 +1,4 @@
-import {removeDotSegments, resolve} from "../lib/Resolve";
+import {removeDotSegments, removeDotSegmentsOfPath, resolve} from "../lib/Resolve";
 
 describe('#resolve', () => {
   it('create an IRI from an absolute IRI when no baseIRI is given', () => {
@@ -627,6 +627,106 @@ describe('#resolve', () => {
     expect(resolve('urn:x?a/../b'))
       .toEqual('urn:x?a/../b');
   });
+
+  it('create an IRI from an absolute IRI with a leading ../ in its path', () => {
+    expect(resolve('g:../x'))
+      .toEqual('g:x');
+  });
+
+  it('create an IRI from an absolute IRI with a leading ./ in its path', () => {
+    expect(resolve('g:./x'))
+      .toEqual('g:x');
+  });
+
+  it('create an IRI from an absolute IRI whose path is .', () => {
+    expect(resolve('x:.'))
+      .toEqual('x:');
+  });
+
+  it('create an IRI from an absolute IRI with a rootless path and dot segments', () => {
+    expect(resolve('tag:a/./b'))
+      .toEqual('tag:a/b');
+  });
+
+  it('create an IRI from an absolute IRI with a rootless path and a .. segment', () => {
+    expect(resolve('urn:a/../b'))
+      .toEqual('urn:/b');
+  });
+
+  it('create an IRI from a parent segment and a baseIRI with a rootless path', () => {
+    expect(resolve('../g', 'tag:a'))
+      .toEqual('tag:g');
+  });
+
+  it('create an IRI from .. and a baseIRI with a rootless path', () => {
+    expect(resolve('..', 'urn:a'))
+      .toEqual('urn:');
+  });
+
+  it('create an IRI from a relative IRI ending in .. and a baseIRI with a rootless path', () => {
+    expect(resolve('g/..', 'tag:a'))
+      .toEqual('tag:/');
+  });
+
+  it('create an IRI from an absolute path and a baseIRI with a rootless path', () => {
+    expect(resolve('/def', 'a:b/c'))
+      .toEqual('a:/def');
+  });
+
+  it('create an IRI from an absolute path and a baseIRI with an empty authority and path', () => {
+    expect(resolve('/abc', 'file://'))
+      .toEqual('file:/abc');
+  });
+
+  it('create an IRI from a query and a baseIRI with an empty authority and path', () => {
+    expect(resolve('?q', 'file://'))
+      .toEqual('file://?q');
+  });
+
+  it('create an IRI from a hash when no baseIRI is given', () => {
+    expect(resolve('#a'))
+      .toEqual('#a');
+  });
+
+  it('create an IRI from a hash and a non-absolute baseIRI', () => {
+    expect(resolve('#a', 'def'))
+      .toEqual('def#a');
+  });
+
+  it('create an IRI from a query and a non-absolute baseIRI with a query', () => {
+    expect(resolve('?a', 'def?x'))
+      .toEqual('def?a');
+  });
+
+  it('error for a relative IRI with a / before a colon when no baseIRI is given', () => {
+    expect(() => resolve('a/b:c'))
+      .toThrow(new Error('Found invalid relative IRI \'a/b:c\' for a missing baseIRI'));
+  });
+
+  it('error for a relative IRI with a ? before a colon when no baseIRI is given', () => {
+    expect(() => resolve('a?b:c'))
+      .toThrow(new Error('Found invalid relative IRI \'a?b:c\' for a missing baseIRI'));
+  });
+
+  it('error for a relative IRI with a # before a colon when no baseIRI is given', () => {
+    expect(() => resolve('a#b:c'))
+      .toThrow(new Error('Found invalid relative IRI \'a#b:c\' for a missing baseIRI'));
+  });
+
+  it('error for a baseIRI with a / before its first colon', () => {
+    expect(() => resolve('x', 'a/b:c'))
+      .toThrow(new Error('Found invalid baseIRI \'a/b:c\' for value \'x\''));
+  });
+
+  it('error for a baseIRI with a / before its first colon when relativeIRI is missing', () => {
+    expect(() => resolve('', 'a/b:c'))
+      .toThrow(new Error('Found invalid baseIRI \'a/b:c\' for value \'\''));
+  });
+
+  it('error for a baseIRI whose only colon is in its query when relativeIRI is missing', () => {
+    expect(() => resolve('', 'def?x:y'))
+      .toThrow(new Error('Found invalid baseIRI \'def?x:y\' for value \'\''));
+  });
 });
 
 describe('#removeDotSegments', () => {
@@ -853,5 +953,32 @@ describe('#removeDotSegments', () => {
   it('should handle a segment with dot and an invalid char as a normal segment.', () => {
     expect(removeDotSegments('/invalid/../.a/../../.../.htaccess'))
       .toEqual('/.../.htaccess');
+  });
+
+  it('should remove a leading parent segment', () => {
+    expect(removeDotSegments('../a'))
+      .toEqual('/a');
+  });
+});
+
+describe('#removeDotSegmentsOfPath', () => {
+  it('should remove dot segments from the path of an IRI with a scheme and authority', () => {
+    expect(removeDotSegmentsOfPath('http://a/b/../c', 4))
+      .toEqual('http://a/c');
+  });
+
+  it('should remove dot segments from the path of a network-path reference', () => {
+    expect(removeDotSegmentsOfPath('//h/./a?x/../y', -1))
+      .toEqual('//h/a?x/../y');
+  });
+
+  it('should keep dot segments in the query', () => {
+    expect(removeDotSegmentsOfPath('urn:x?a/../b', 3))
+      .toEqual('urn:x?a/../b');
+  });
+
+  it('should remove dot segments from a relative path', () => {
+    expect(removeDotSegmentsOfPath('a/./b#c', -1))
+      .toEqual('a/b#c');
   });
 });

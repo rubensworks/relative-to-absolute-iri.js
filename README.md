@@ -59,10 +59,20 @@ resolve('#abc', 'http://base.org/'); // Outputs 'http://base.org/#abc'
 
 ### Invalid base IRI
 
-Invalid base IRIs cause an error to be thrown.
+A base IRI without a scheme is invalid, and causes an error to be thrown.
+A relative IRI that consists of only a fragment or query is appended to such a base IRI as is.
 
 ```javascript
 resolve('abc', 'def'); // Error
+resolve('#abc', 'def'); // Outputs 'def#abc'
+```
+
+### Deviations from RFC 3986
+
+Relative paths are resolved against only the scheme of a base IRI with an empty authority and path, such as `file://`.
+
+```javascript
+resolve('abc', 'file://'); // Outputs 'file:abc', where RFC 3986 gives 'file:///abc'
 ```
 
 ### Relative to scheme
